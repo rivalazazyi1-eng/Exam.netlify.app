@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riyu Exambro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { margin: 0; padding: 0; height: 100%; font-family: sans-serif; background: #fff; overflow: hidden; }
+
+        /* --- SPLASH SCREEN --- */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #1e88e5; display: flex; justify-content: center; align-items: center;
+            z-index: 10000; animation: fadeOut 0.5s ease 0.5s forwards;
+        }
+        .white-box { 
+            background: white; 
+            width: 120px; 
+            height: 120px; 
+            border-radius: 30px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* --- UI UTAMA --- */
+        #main-ui { display: flex; flex-direction: column; height: 100vh; }
+        .header { display: flex; justify-content: space-between; padding: 15px 20px; align-items: center; border-bottom: 1px solid #eee; }
+        .header h1 { font-size: 20px; margin: 0; font-weight: 500; }
+        
+        .content { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 35px; gap: 15px; }
+        input { width: 100%; padding: 18px; border: 1.5px solid #999; border-radius: 10px; font-size: 16px; outline: none; }
+        
+        .btn { 
+            width: 100%; padding: 16px; border: none; border-radius: 40px; 
+            font-size: 14px; font-weight: bold; cursor: pointer; color: white; 
+            background: #1e88e5; display: flex; align-items: center; 
+            justify-content: center; gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            text-transform: uppercase; 
+        }
+
+        /* --- BROWSER VIEW --- */
+        #browser-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 5000; flex-direction: column; }
+        .browser-header { background: #1e88e5; color: white; padding: 12px; display: flex; align-items: center; gap: 15px; }
+        iframe { flex: 1; border: none; width: 100%; height: 100%; }
+
+        /* --- SCANNER --- */
+        #reader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 6000; display: none; }
+        #close-scanner { position: absolute; top: 20px; right: 20px; z-index: 6001; color: white; font-size: 30px; cursor: pointer; }
+
+        @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
+    </style>
+</head>
+<body>
+
+    <div id="splash-screen">
+        <div class="white-box">
+            <img src="exam.png" style="width:100%">
+        </div>
+    </div>
+
+    <div id="main-ui">
+        <header class="header">
+            <h1>Riyu Exambro</h1>
+            <div style="display:flex; gap:15px;"><i class="fas fa-th-large"></i> <i class="fas fa-history"></i> <i class="fas fa-info-circle"></i></div>
+        </header>
+        <div class="content">
+            <input type="text" id="urlInput" placeholder="Masukkan URL">
+            <button class="btn" onclick="jalankanBrowser()">AKSES URL</button>
+            <button class="btn" onclick="mulaiScan()">
+                <i class="fas fa-qrcode"></i> SCAN QR-CODE
+            </button>
+        </div>
+    </div>
+
+    <div id="browser-view">
+        <div class="browser-header">
+            <i class="fas fa-arrow-left" onclick="tutupBrowser()" style="cursor:pointer;"></i>
+            <span>Browser</span>
+        </div>
+        <iframe id="exam-frame" src=""></iframe>
+    </div>
+
+    <div id="reader"></div>
+    <i class="fas fa-times" id="close-scanner" onclick="stopScan()" style="display:none;"></i>
+
+    <script>
+        // Logika untuk membuka URL
+        function jalankanBrowser() {
+            let url = document.getElementById('urlInput').value.trim();
+            if (!url) return;
+
+            if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                url = "https://" + url;
+            }
+
+            document.getElementById('browser-view').style.display = 'flex';
+            document.getElementById('exam-frame').src = url;
+        }
+
+        function tutupBrowser() {
+            document.getElementById('browser-view').style.display = 'none';
+            document.getElementById('exam-frame').src = "";
+        }
+
+        // Logika Scanner QR
+        const html5QrCode = new Html5Qrcode("reader");
+
+        function mulaiScan() {
+            document.getElementById('reader').style.display = 'block';
+            document.getElementById('close-scanner').style.display = 'block';
+
+            html5QrCode.start(
+                { facingMode: "environment" }, 
+                { fps: 15, qrbox: 250 },
+                (decodedText) => {
+                    document.getElementById('urlInput').value = decodedText;
+                    stopScan();
+                    jalankanBrowser();
+                },
+                (errorMessage) => {}
+            ).catch((err) => {
+                alert("Gagal akses kamera. Pastikan menggunakan HTTPS.");
+                stopScan();
+            });
+        }
+
+        function stopScan() {
+            html5QrCode.stop().then(() => {
+                document.getElementById('reader').style.display = 'none';
+                document.getElementById('close-scanner').style.display = 'none';
+            }).catch(() => {
+                document.getElementById('reader').style.display = 'none';
+                document.getElementById('close-scanner').style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
