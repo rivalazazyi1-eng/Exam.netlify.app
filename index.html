@@ -2,8 +2,12 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Riyu Exambro</title>
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode"></script>
     
@@ -11,55 +15,60 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { 
             margin: 0; padding: 0; height: 100%; width: 100%;
-            font-family: sans-serif; background: #fff; overflow: hidden; 
+            font-family: 'Segoe UI', Roboto, sans-serif; background: #fff; overflow: hidden; 
         }
 
-        /* SPLASH SCREEN */
+        /* 1. SPLASH SCREEN */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #1e88e5; display: flex; justify-content: center; align-items: center;
             z-index: 10000; animation: fadeOut 0.5s ease 0.5s forwards;
         }
-        .white-box { background: white; width: 120px; height: 120px; border-radius: 30px; display: flex; justify-content: center; align-items: center; padding: 15px; }
+        .white-box { 
+            background: white; width: 120px; height: 120px; border-radius: 30px; 
+            display: flex; justify-content: center; align-items: center; padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
 
-        /* UI UTAMA */
+        /* 2. UI UTAMA */
         #main-ui { display: flex; flex-direction: column; height: 100vh; }
         .header { display: flex; justify-content: space-between; padding: 15px 20px; align-items: center; border-bottom: 1px solid #eee; }
         .header h1 { font-size: 20px; margin: 0; font-weight: 500; }
+        
         .content { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 35px; gap: 15px; }
         input { width: 100%; padding: 18px; border: 1.5px solid #999; border-radius: 10px; font-size: 16px; outline: none; }
-        .btn { width: 100%; padding: 16px; border: none; border-radius: 40px; font-size: 14px; font-weight: bold; cursor: pointer; color: white; background: #1e88e5; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-transform: uppercase; }
+        .btn { 
+            width: 100%; padding: 16px; border: none; border-radius: 40px; 
+            font-size: 14px; font-weight: bold; cursor: pointer; color: white; 
+            background: #1e88e5; display: flex; align-items: center; 
+            justify-content: center; gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            text-transform: uppercase; 
+        }
 
-        /* BROWSER VIEW (FULLSCREEN OVERLAY) */
+        /* 3. BROWSER VIEW (MODE UJIAN) */
         #browser-view { 
-            display: none; position: fixed; 
-            top: 0; left: 0; width: 100vw; height: 100vh; 
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background: white; z-index: 9999; flex-direction: column; 
         }
         
-        /* Bar pengganti Notifikasi Asli */
         .browser-header { 
-            background: #ffffff; 
-            color: #333; 
-            padding: 10px 15px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between;
-            border-bottom: 1px solid #ddd;
-            height: 50px;
+            background: #ffffff; color: #333; 
+            padding: 10px 15px; /* Sesuaikan padding-top jika ingin menjorok ke bawah status bar asli */
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid #ddd; height: 55px;
         }
 
         .browser-left { font-weight: bold; font-size: 16px; color: #444; }
-        .browser-right { display: flex; align-items: center; gap: 12px; }
+        .browser-right { display: flex; align-items: center; gap: 10px; }
         
         .time-box, .battery-box { 
             display: flex; align-items: center; gap: 5px; 
-            color: #1e88e5; font-weight: bold; font-size: 14px;
+            color: #4285f4; font-weight: bold; font-size: 14px;
         }
         
-        iframe { flex: 1; border: none; width: 100%; height: calc(100% - 50px); }
+        iframe { flex: 1; border: none; width: 100%; height: calc(100% - 55px); }
 
-        /* SCANNER */
+        /* 4. SCANNER */
         #reader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 11000; display: none; }
         #close-scanner { position: absolute; top: 20px; right: 20px; z-index: 11001; color: white; font-size: 30px; cursor: pointer; }
 
@@ -69,7 +78,9 @@
 <body>
 
     <div id="splash-screen">
-        <div class="white-box"><img src="exam.png" style="width:100%"></div>
+        <div class="white-box">
+            <img src="exam.png" style="width:100%" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2641/2641409.png'">
+        </div>
     </div>
 
     <div id="main-ui">
@@ -92,11 +103,11 @@
             <div class="browser-right">
                 <div class="time-box">
                     <i class="far fa-clock"></i>
-                    <span id="real-time">00:0</span>
+                    <span id="real-time">00:00</span>
                 </div>
                 <div class="battery-box">
                     <i class="fas fa-bolt"></i>
-                    <span id="battery-level">0%</span>
+                    <span id="battery-level">--%</span>
                 </div>
                 <i class="fas fa-sign-out-alt" onclick="tutupBrowser()" style="margin-left: 10px; font-size: 20px; cursor: pointer; color: #555;"></i>
             </div>
@@ -108,58 +119,59 @@
     <i class="fas fa-times" id="close-scanner" onclick="stopScan()" style="display:none;"></i>
 
     <script>
-        // JAM REAL-TIME
+        // FUNGSI JAM REAL-TIME
         function updateTime() {
             const now = new Date();
-            const hours = now.getHours();
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('real-time').innerText = `${hours}:${minutes}`;
+            const h = now.getHours();
+            const m = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('real-time').innerText = `${h}:${m}`;
         }
         setInterval(updateTime, 1000);
         updateTime();
 
-        // BATERAI REAL-TIME
+        // FUNGSI BATERAI REAL-TIME
         if (navigator.getBattery) {
             navigator.getBattery().then(function(battery) {
-                const updateBat = () => document.getElementById('battery-level').innerText = Math.round(battery.level * 100) + "%";
-                updateBat();
-                battery.onlevelchange = updateBat;
+                const updateB = () => document.getElementById('battery-level').innerText = Math.round(battery.level * 100) + "%";
+                updateB();
+                battery.onlevelchange = updateB;
             });
+        } else {
+            document.getElementById('battery-level').innerText = "100%";
         }
 
-        // FUNGSI FULLSCREEN
-        function requestFullScreen() {
+        // FULLSCREEN
+        function toggleFullScreen(goFull) {
             const el = document.documentElement;
-            if (el.requestFullscreen) el.requestFullscreen();
-            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-            else if (el.msRequestFullscreen) el.msRequestFullscreen();
+            if(goFull) {
+                if (el.requestFullscreen) el.requestFullscreen();
+                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            }
         }
 
-        function exitFullScreen() {
-            if (document.exitFullscreen) document.exitFullscreen();
-            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-        }
-
+        // JALANKAN BROWSER
         function jalankanBrowser() {
             let url = document.getElementById('urlInput').value.trim();
             if (!url) return;
             if (!url.startsWith("http")) url = "https://" + url;
             
-            // Aktifkan Layar Penuh & Tampilkan Browser
-            requestFullScreen();
+            toggleFullScreen(true);
             document.getElementById('browser-view').style.display = 'flex';
             document.getElementById('exam-frame').src = url;
         }
 
         function tutupBrowser() {
-            if(confirm("Keluar dari Ujaan?")) {
-                exitFullScreen();
+            if(confirm("Keluar dari halaman ini?")) {
+                toggleFullScreen(false);
                 document.getElementById('browser-view').style.display = 'none';
                 document.getElementById('exam-frame').src = "";
             }
         }
 
-        // SCANNER
+        // SCAN QR
         const scanner = new Html5Qrcode("reader");
         function mulaiScan() {
             document.getElementById('reader').style.display = 'block';
@@ -168,7 +180,7 @@
                 document.getElementById('urlInput').value = hasil;
                 stopScan();
                 jalankanBrowser();
-            }).catch(() => alert("Kamera Error"));
+            }).catch(e => alert("Kamera Error: Gunakan koneksi HTTPS"));
         }
         function stopScan() {
             scanner.stop().then(() => {
